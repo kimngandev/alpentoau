@@ -1,0 +1,21 @@
+{
+  "nav": {
+    "home": "Home",
+    "category": "Genres",
+    "search": "Search"
+  },
+  "aria": {
+    "toggleMenu": "Toggle menu",
+    "toggleTheme": "Toggle theme"
+  },
+
+  "hero": {
+    "title": "Where Story Begins",
+    "subtitle": "Embark on a creative journey and discover countless unique works. Your imagination is the only limit.",
+    "buttonText": "Start Exploring"
+  },
+
+  "loading": "Loading...",
+  "views": "views",
+  "readFromStart": "Read from beginning"
+}

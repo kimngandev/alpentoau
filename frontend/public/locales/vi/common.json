@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "category": "Thể loại",
+    "search": "Tìm kiếm"
+  },
+  "aria": {
+    "toggleMenu": "Mở/đóng menu",
+    "toggleTheme": "Chuyển giao diện"
+  },
+  "loading": "Đang tải...",
+  "views": "lượt xem",
+  "readFromStart": "Đọc từ đầu" ,
+  
+  "hero": {
+    "title": "Nơi Câu Chuyện Bắt Đầu",
+    "subtitle": "Bắt đầu hành trình sáng tạo và khám phá vô vàn tác phẩm độc đáo. Trí tưởng tượng của bạn là giới hạn duy nhất.",
+    "buttonText": "Bắt đầu khám phá"
+  }
+}

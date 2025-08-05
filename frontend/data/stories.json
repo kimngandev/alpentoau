@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "title": "Thần Đồng Đất Việt",
+    "slug": "than-dong-dat-viet",
+    "description": "Truyện tranh hài lịch sử nổi tiếng.",
+    "cover": "/images/story1.jpg",
+    "views": 12890
+  },
+  {
+    "id": 2,
+    "title": "Ma Đạo Tổ Sư",
+    "slug": "ma-dao-to-su",
+    "description": "Tiên hiệp, huyền huyễn, hấp dẫn.",
+    "cover": "/images/madaotosu.jpg",
+    "views": 45120
+  },
+  {
+    "id": 3,
+    "title": "Phàm Nhân Tu Tiên",
+    "slug": "pham-nhan-tu-tien",
+    "description": "Câu chuyện về con đường tu tiên gian nan.",
+    "cover": "/images/story3.jpg",
+    "views": 22300
+  },
+  {
+    "id": 4,
+    "title": "Phàm Nhân Tu Tiên2",
+    "slug": "pham-nhan-tu-tien2",
+    "description": "Câu chuyện về con đường tu tiên gian nan2.",
+    "cover": "/images/story3.jpg",
+    "views": 22400
+  }
+]

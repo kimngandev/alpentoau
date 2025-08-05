@@ -1,0 +1,80 @@
+# ================================
+# Node modules (cả root và sub-packages)
+# ================================
+**/node_modules/
+
+# ================================
+# Lockfiles (nên commit, bỏ comment nếu bạn muốn ignore)
+# ================================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ================================
+# Next.js / Frontend build
+# ================================
+frontend/.next/
+frontend/out/
+
+# ================================
+# Backend build
+# ================================
+backend/dist/
+api/dist/
+
+# ================================
+# Mobile (nếu dùng React Native / Expo)
+# ================================
+mobile/.expo/
+mobile/.expo-shared/
+mobile/android/
+mobile/ios/
+
+# ================================
+# Environment variables
+# ================================
+.env
+.env.*.local
+
+# ================================
+# Logs
+# ================================
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# ================================
+# Coverage reports
+# ================================
+coverage/
+.nyc_output/
+
+# ================================
+# IDE / Editor
+# ================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ================================
+# OS-specific
+# ================================
+.DS_Store
+Thumbs.db
+
+# ================================
+# TypeScript
+# ================================
+*.tsbuildinfo
+
+# ================================
+# Miscellaneous
+# ================================
+*.tgz
+*.tmp

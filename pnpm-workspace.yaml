@@ -1,0 +1,8 @@
+packages:
+  - 'admin'
+  - 'backend'
+  - 'frontend'
+  - 'mobile'
+  - 'libs'
+  - 'types'
+  - 'scripts'
