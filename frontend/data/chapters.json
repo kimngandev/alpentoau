@@ -1,0 +1,9 @@
+[
+  { "id": 1, "storyId": 1, "chapterNumber": 1, "title": "Khởi đầu mới", "slug": "chuong-1" },
+  { "id": 2, "storyId": 1, "chapterNumber": 2, "title": "Cuộc gặp gỡ định mệnh", "slug": "chuong-2" },
+  { "id": 3, "storyId": 1, "chapterNumber": 3, "title": "Bí mật được hé lộ", "slug": "chuong-3" },
+  { "id": 4, "storyId": 2, "chapterNumber": 1, "title": "Khởi đầu", "slug": "chuong-1" },
+  { "id": 5, "storyId": 2, "chapterNumber": 2, "title": "Bí mật", "slug": "chuong-2" },
+  { "id": 6, "storyId": 3, "chapterNumber": 1, "title": "Nhập môn", "slug": "chuong-1" },
+  { "id": 7, "storyId": 4, "chapterNumber": 1, "title": "Hành trình bắt đầu", "slug": "chuong-1" }
+]
