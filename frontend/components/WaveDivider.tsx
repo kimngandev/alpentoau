@@ -12,8 +12,7 @@ export default function HarmoniousWave() {
         viewBox="0 0 1440 320"
       >
         <defs>
-          {/* Bộ lọc để tạo hiệu ứng phát sáng mờ ảo */}
-          <filter id="glow">
+                   <filter id="glow">
             <feGaussianBlur stdDeviation="5" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />

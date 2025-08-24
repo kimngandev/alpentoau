@@ -1,9 +1,8 @@
-// components/CosmicBackground.jsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
-// Tạo một vì sao ngẫu nhiên
+
 const Star = ({ initialX, initialY, size, duration }) => {
   const controls = useAnimation();
 
@@ -36,7 +35,7 @@ export default function CosmicBackground() {
   const [stars, setStars] = useState([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Tạo ra các vì sao khi component được mount
+  
   useEffect(() => {
     const generateStars = () => {
       const newStars = Array.from({ length: 150 }, () => ({
@@ -44,13 +43,13 @@ export default function CosmicBackground() {
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
         size: Math.random() * 1.5 + 0.5,
-        duration: Math.random() * 20 + 10, // Mỗi sao có tốc độ khác nhau
+        duration: Math.random() * 20 + 10,
       }));
       setStars(newStars);
     };
 
     generateStars();
-    window.addEventListener('resize', generateStars); // Tái tạo sao khi resize
+    window.addEventListener('resize', generateStars);
 
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -65,10 +64,8 @@ export default function CosmicBackground() {
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
-      {/* Nền Gradient Tím Đậm */}
+     
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a0c2e] via-[#2a144f] to-[#0f071a]" />
-
-      {/* Các tinh vân (Nebula) màu tím và hồng */}
       <motion.div
         className="absolute top-[-20%] left-[-20%] h-[60%] w-[60%] rounded-full bg-purple-600/20 blur-[120px]"
         animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
@@ -80,15 +77,13 @@ export default function CosmicBackground() {
         transition={{ duration: 40, repeat: Infinity, repeatType: 'mirror' }}
       />
 
-      {/* Hiệu ứng ánh sáng đi theo con trỏ chuột */}
-      <motion.div
+            <motion.div
         className="absolute h-96 w-96 rounded-full bg-white/5 blur-[80px]"
         animate={{ x: mousePosition.x - 192, y: mousePosition.y - 192 }}
         transition={{ type: 'tween', ease: 'backOut', duration: 0.5 }}
       />
 
-      {/* SVG chứa các vì sao */}
-      <svg className="absolute inset-0 h-full w-full">
+         <svg className="absolute inset-0 h-full w-full">
         {stars.map((star) => (
           <Star
             key={star.id}
