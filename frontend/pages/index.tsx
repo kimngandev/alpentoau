@@ -50,8 +50,8 @@ export default function HomePage() {
           ))}
         </div>
       </main>
-      {/* <PopupAd /> */}
-      <Footer />
+      
+   
     </div>
   )
 }

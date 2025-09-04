@@ -49,8 +49,7 @@ export default function Footer() {
   const content = translations[lang];
 
   return (
-    <footer className="relative bg-[#0f071a] text-gray-300 pt-16 pb-8 mt-24 overflow-hidden">
-      {/* Lớp viền gradient trên cùng */}
+    <footer className="relative bg-[#0f071a] text-gray-300 pt-16 pb-8 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 opacity-50" />
 
       <div className="container mx-auto px-6">

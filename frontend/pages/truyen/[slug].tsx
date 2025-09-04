@@ -98,8 +98,8 @@ export default function StoryDetail({ story, storyChapters, relatedStories, rela
       <div className="min-h-screen bg-gray-50 dark:bg-[#0b0418] text-gray-600 dark:text-gray-300">
         <Header />
         <main>
-          <div className="relative pt-24 pb-12 overflow-hidden">
-            {/* ... Phần banner giữ nguyên ... */}
+          <div className="relative pt-24 overflow-hidden">
+          
             <div className="absolute inset-0">
               <Image src={story.cover} alt={story.title} fill className="object-cover opacity-10 dark:opacity-10 blur-2xl" />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/80 to-transparent dark:from-[#0b0418] dark:via-[#0b0418]/80 dark:to-[#0b0418]" />
@@ -115,7 +115,7 @@ export default function StoryDetail({ story, storyChapters, relatedStories, rela
                   <div className="w-48 md:w-60 flex-shrink-0">
                     <Image src={story.cover} alt={story.title} width={240} height={360} className="w-full h-auto object-cover rounded-lg shadow-lg dark:shadow-2xl dark:shadow-purple-950/50" />
                   </div>
-                  {/* *** BỔ SUNG: Nhóm nút hành động *** */}
+                 
                   <div className="w-full flex items-center gap-4 mt-8">
                     {storyChapters.length > 0 && (
                       <Link href={`/chuong/${storyChapters[0].id}`} className="flex-1 group relative p-3 text-center font-bold text-white bg-purple-600 rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40">
@@ -192,7 +192,7 @@ export default function StoryDetail({ story, storyChapters, relatedStories, rela
             </div>
           </div>
         </main>
-        <Footer />
+     
       </div>
     </>
   );

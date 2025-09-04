@@ -210,8 +210,7 @@ export default function ChapterPage() {
           <LoadingSpinner />
         )}
       </main>
-      {/* Thêm Footer vào cuối trang */}
-      <Footer />
+      
     </div>
   )
 }

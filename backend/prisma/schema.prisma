@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  AUTHOR
+  ADMIN
+}
+
+enum StoryStatus {
+  ONGOING
+  COMPLETED
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  role      UserRole  @default(USER)
+  stories   Story[]   @relation("AuthorStories")
+  ratings   Rating[]
+  comments  Comment[]
+  follows   Follow[]
+  createdAt DateTime  @default(now())
+}
+
+model Genre {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  stories Story[]
+}
+
+model Story {
+  id          Int       @id @default(autoincrement())
+  title       String    @unique           // ✅ Cần để upsert theo title
+  description String
+  coverImage  String?
+  status      StoryStatus @default(ONGOING)
+  authorId    Int
+  genreId     Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author      User     @relation("AuthorStories", fields: [authorId], references: [id])
+  genre       Genre    @relation(fields: [genreId], references: [id])
+  chapters    Chapter[]
+  ratings     Rating[]
+  follows     Follow[]
+}
+
+model Chapter {
+  id        Int      @id @default(autoincrement())
+  storyId   Int
+  title     String
+  number    Int
+  content   String
+  createdAt DateTime @default(now())
+
+  story     Story    @relation(fields: [storyId], references: [id])
+  comments  Comment[]
+
+  @@unique([storyId, number]) // ✅ Cần để upsert theo storyId + số chương
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  storyId   Int
+  userId    Int
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  story     Story    @relation(fields: [storyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([storyId, userId])  // ✅ 1 user chỉ được đánh giá 1 truyện
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  chapterId  Int
+  userId     Int
+  content    String
+  createdAt  DateTime @default(now())
+
+  chapter    Chapter  @relation(fields: [chapterId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Follow {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  storyId   Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  story     Story    @relation(fields: [storyId], references: [id])
+
+  @@unique([userId, storyId]) // ✅ chỉ follow 1 lần
+}

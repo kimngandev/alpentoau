@@ -1,6 +1,6 @@
 // frontend/contexts/AuthContext.tsx
 
-import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 
 interface User {
@@ -33,21 +33,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData: User) => {
+  // *** SỬA LỖI: Bọc các hàm trong useCallback ***
+  // Điều này đảm bảo các hàm này không bị tạo lại trên mỗi lần render.
+  const login = useCallback((userData: User) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('user');
     setUser(null);
-    // Sau khi logout, chuyển hướng về trang chủ
     router.push('/');
-  };
+  }, [router]); // Chỉ tạo lại hàm logout khi router thay đổi
 
-  // *** SỬA LỖI LẶP FOOTER TẠI ĐÂY ***
-  // Sử dụng useMemo để ngăn context value bị tạo lại một cách không cần thiết,
-  // giúp ổn định việc render và tránh lỗi nhân đôi component.
+  // *** SỬA LỖI: Loại bỏ `router` khỏi dependency array ***
+  // Giờ đây, `value` chỉ được tạo lại khi `user` hoặc `loading` thay đổi.
   const value = useMemo(
     () => ({
       user,
@@ -56,8 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       loading,
     }),
-    // Mảng dependencies: value chỉ được tạo lại khi user hoặc loading thay đổi
-    [user, loading]
+    [user, loading, login, logout]
   );
 
   return (
