@@ -38,8 +38,6 @@
       "isActive": true,
       "updatedAt": "2025-07-23T08:00:00Z"
     },
-  
-    // --- Genre children ---
     {
       "id": "g-action",
       "name": "Action",
@@ -183,8 +181,6 @@
       "isActive": true,
       "updatedAt": "2025-07-31T08:00:00Z"
     },
-  
-    // --- Format children ---
     {
       "id": "f-manga",
       "name": "Manga",
@@ -250,8 +246,6 @@
       "isActive": true,
       "updatedAt": "2025-07-26T08:00:00Z"
     },
-  
-    // --- Audience children ---
     {
       "id": "a-shounen",
       "name": "Shounen",

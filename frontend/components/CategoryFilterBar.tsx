@@ -34,8 +34,14 @@ export default function CategoryFilterBar({ filters, onFilterChange }: CategoryF
         { id: 'completed', label: t('filter.completed') },
     ];
 
-    const currentSortLabel = sortOptions.find(opt => opt.id === filters.sortBy)?.label;
-    const currentStatusLabel = statusOptions.find(opt => opt.id === filters.status)?.label;
+    // Safe defaults if filters or fields are missing
+    const safeFilters: FilterState = {
+        sortBy: (filters && filters.sortBy) ? filters.sortBy : 'latest',
+        status: (filters && filters.status) ? filters.status : 'all',
+    };
+
+    const currentSortLabel = (sortOptions.find(opt => opt.id === safeFilters.sortBy)?.label) || t('filter.latest');
+    const currentStatusLabel = (statusOptions.find(opt => opt.id === safeFilters.status)?.label) || t('filter.all_status');
 
     // Component Dropdown tái sử dụng
     const FilterDropdown = ({ label, currentSelectionLabel, options, onSelect, type }: any) => (
@@ -58,11 +64,11 @@ export default function CategoryFilterBar({ filters, onFilterChange }: CategoryF
                                         className={`${
                                             active ? 'bg-gray-100 dark:bg-gray-700' : ''
                                         } ${
-                                            filters[type] === option.id ? 'font-bold text-purple-600' : 'text-gray-900 dark:text-gray-200'
+                                            (safeFilters as any)[type] === option.id ? 'font-bold text-purple-600' : 'text-gray-900 dark:text-gray-200'
                                         } group flex w-full items-center rounded-md px-3 py-2 text-sm`}
                                     >
                                         <span className="flex-grow text-left">{option.label}</span>
-                                        {filters[type] === option.id && <RiCheckLine className="h-5 w-5" />}
+                                        {(safeFilters as any)[type] === option.id && <RiCheckLine className="h-5 w-5" />}
                                     </button>
                                 )}
                             </Menu.Item>

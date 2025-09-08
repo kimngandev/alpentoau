@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Category } from "../../types/category";
 import CategoryCard from "../../components/CategoryCard";
-import CategoryFilterBar, { type FilterState } from "../../components/CategoryFilterBar";
+import CategoryFilterBar, { type FilterState as BarFilterState } from "../../components/CategoryFilterBar";
 import Pagination from "../../components/Pagination";
 import raw from "../../data/categories.json";
 import { fetchAPI } from '../../lib/api'; 
@@ -10,9 +10,17 @@ import { fetchAPI } from '../../lib/api';
 const ALL: Category[] = raw as unknown as Category[];
 const PAGE_SIZE = 12;
 
+// Local filter state for this page
+type PageFilters = {
+  q: string;
+  parentId: string | "all";
+  activeOnly: boolean;
+  sort: "name-asc" | "name-desc" | "items-desc" | "updated-desc";
+};
+
 export default function CategoriesPage() {
   // SSR-safe: không đụng localStorage khi render server
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState<PageFilters>({
     q: "",
     parentId: "all",
     activeOnly: false,
@@ -76,15 +84,46 @@ export default function CategoriesPage() {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, page]);
 
+  // Map giữa sort của trang và sortBy của CategoryFilterBar
+  const mapSortToSortBy = (s: PageFilters["sort"]): BarFilterState["sortBy"] => {
+    switch (s) {
+      case "items-desc":
+        return "views";
+      case "updated-desc":
+        return "latest";
+      case "name-asc":
+      case "name-desc":
+      default:
+        return "rating"; // tạm thời ánh xạ về rating nếu không khớp
+    }
+  };
+
+  const mapSortByToSort = (sb: BarFilterState["sortBy"]): PageFilters["sort"] => {
+    switch (sb) {
+      case "views":
+        return "items-desc";
+      case "latest":
+        return "updated-desc";
+      case "rating":
+      default:
+        return "name-asc";
+    }
+  };
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="mb-2 text-2xl font-bold">Thể loại</h1>
 
       <CategoryFilterBar
-        state={filters}
-        onChange={(patch) => setFilters((s) => ({ ...s, ...patch }))}
-        parents={parents}
-        total={filtered.length}
+        filters={{ sortBy: mapSortToSortBy(filters.sort), status: "all" }}
+        onFilterChange={(patch) => {
+          if (patch.sortBy) {
+            setFilters((s) => ({ ...s, sort: mapSortByToSort(patch.sortBy!) }));
+          }
+          if (patch.status) {
+            // hiện chưa dùng status để lọc; có thể mở rộng sau
+          }
+        }}
       />
 
       {filtered.length === 0 ? (
