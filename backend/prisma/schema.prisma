@@ -7,69 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  AUTHOR
-  ADMIN
-}
-
-enum StoryStatus {
-  ONGOING
-  COMPLETED
-}
-
 model User {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   email     String    @unique
   password  String
   role      UserRole  @default(USER)
-  isVerified Boolean  @default(false)
-  verificationToken String? @unique
-  verificationTokenExpires DateTime?
-  stories   Story[]   @relation("AuthorStories")
-  ratings   Rating[]
-  comments  Comment[]
-  follows   Follow[]
   createdAt DateTime  @default(now())
+  comments  Comment[]
+  Follow    Follow[]
+  ratings   Rating[]
+  stories   Story[]   @relation("AuthorStories")
 }
 
 model Genre {
-  id      Int     @id @default(autoincrement())
-  name    String  @unique
-  stories Story[]
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Story Story[]
 }
 
 model Story {
-  id          Int       @id @default(autoincrement())
-  title       String    @unique           // ✅ Cần để upsert theo title
+  id          Int         @id @default(autoincrement())
+  title       String      @unique
   description String
   coverImage  String?
   status      StoryStatus @default(ONGOING)
   authorId    Int
   genreId     Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  author      User     @relation("AuthorStories", fields: [authorId], references: [id])
-  genre       Genre    @relation(fields: [genreId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   chapters    Chapter[]
+  Follow      Follow[]
   ratings     Rating[]
-  follows     Follow[]
+  author      User        @relation("AuthorStories", fields: [authorId], references: [id])
+  Genre       Genre       @relation(fields: [genreId], references: [id])
 }
 
 model Chapter {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   storyId   Int
   title     String
   number    Int
   content   String
-  createdAt DateTime @default(now())
-
-  story     Story    @relation(fields: [storyId], references: [id])
+  createdAt DateTime  @default(now())
+  story     Story     @relation(fields: [storyId], references: [id])
   comments  Comment[]
 
-  @@unique([storyId, number]) // ✅ Cần để upsert theo storyId + số chương
+  @@unique([storyId, number])
 }
 
 model Rating {
@@ -80,22 +64,20 @@ model Rating {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   story     Story    @relation(fields: [storyId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 
-  @@unique([storyId, userId])  // ✅ 1 user chỉ được đánh giá 1 truyện
+  @@unique([storyId, userId])
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
-  chapterId  Int
-  userId     Int
-  content    String
-  createdAt  DateTime @default(now())
-
-  chapter    Chapter  @relation(fields: [chapterId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  chapterId Int
+  userId    Int
+  content   String
+  createdAt DateTime @default(now())
+  chapter   Chapter  @relation(fields: [chapterId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Follow {
@@ -103,9 +85,19 @@ model Follow {
   userId    Int
   storyId   Int
   createdAt DateTime @default(now())
+  Story     Story    @relation(fields: [storyId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
 
-  user      User     @relation(fields: [userId], references: [id])
-  story     Story    @relation(fields: [storyId], references: [id])
+  @@unique([userId, storyId])
+}
 
-  @@unique([userId, storyId]) // ✅ chỉ follow 1 lần
+enum UserRole {
+  USER
+  AUTHOR
+  ADMIN
+}
+
+enum StoryStatus {
+  ONGOING
+  COMPLETED
 }
