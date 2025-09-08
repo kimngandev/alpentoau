@@ -4,6 +4,8 @@ import CategoryCard from "../../components/CategoryCard";
 import CategoryFilterBar, { type FilterState } from "../../components/CategoryFilterBar";
 import Pagination from "../../components/Pagination";
 import raw from "../../data/categories.json";
+import { fetchAPI } from '../../lib/api'; 
+
 
 const ALL: Category[] = raw as unknown as Category[];
 const PAGE_SIZE = 12;

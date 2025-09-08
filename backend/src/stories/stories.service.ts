@@ -1,219 +1,332 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+// backend/src/stories/stories.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateStoryDto, UpdateStoryDto, StoryQueryDto } from './dto/story.dto';
+import { CreateStoryDto, UpdateStoryDto } from './dto/story.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async getAllStories(query: StoryQueryDto) {
-    const { page = 1, limit = 10, genre, search, status } = query;
+  // Lấy tất cả truyện với phân trang
+  async findAll(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
-
-    const where: Prisma.StoryWhereInput = {};
     
-    if (genre) {
-      where.genre = { name: genre };
-    }
-    
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-    
-    if (status) {
-      where.status = status as any;
-    }
-
     const [stories, total] = await Promise.all([
       this.prisma.story.findMany({
-        where,
-        include: {
-          author: { select: { id: true, username: true } },
-          genre: { select: { id: true, name: true } },
-          _count: { select: { chapters: true, follows: true, ratings: true } },
-        },
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        include: {
+          author: {
+            select: { id: true, username: true }
+          },
+          genre: true,
+          chapters: {
+            select: { id: true },
+            orderBy: { number: 'desc' }
+          },
+          _count: {
+            select: { 
+              chapters: true,
+              ratings: true,
+              follows: true 
+            }
+          }
+        },
+        orderBy: { updatedAt: 'desc' }
       }),
-      this.prisma.story.count({ where }),
+      this.prisma.story.count()
     ]);
 
     return {
-      stories,
-      pagination: {
-        page,
-        limit,
+      data: stories,
+      meta: {
+        current_page: page,
+        per_page: limit,
         total,
-        pages: Math.ceil(total / limit),
-      },
+        total_pages: Math.ceil(total / limit)
+      }
     };
   }
 
-  async getFeaturedStories() {
-    return this.prisma.story.findMany({
-      where: { status: 'ONGOING' },
-      include: {
-        author: { select: { username: true } },
-        genre: { select: { name: true } },
-        _count: { select: { chapters: true, follows: true, ratings: true } },
-      },
-      take: 10,
-      orderBy: { follows: { _count: 'desc' } },
-    });
-  }
-
-  async getTrendingStories() {
-    return this.prisma.story.findMany({
-      include: {
-        author: { select: { username: true } },
-        genre: { select: { name: true } },
-        _count: { select: { chapters: true, follows: true, ratings: true } },
-      },
-      take: 10,
-      orderBy: { ratings: { _count: 'desc' } },
-    });
-  }
-
-  async getStoryById(id: number) {
+  // Lấy truyện theo ID
+  async findOne(id: number) {
     const story = await this.prisma.story.findUnique({
       where: { id },
       include: {
-        author: { select: { id: true, username: true } },
-        genre: { select: { id: true, name: true } },
-        _count: { select: { chapters: true, follows: true, ratings: true } },
-      },
+        author: {
+          select: { id: true, username: true }
+        },
+        genre: true,
+        chapters: {
+          select: { 
+            id: true, 
+            title: true, 
+            number: true, 
+            createdAt: true 
+          },
+          orderBy: { number: 'asc' }
+        },
+        ratings: {
+          select: { rating: true }
+        },
+        _count: {
+          select: { 
+            chapters: true,
+            ratings: true,
+            follows: true 
+          }
+        }
+      }
     });
 
     if (!story) {
-      throw new NotFoundException('Không tìm thấy truyện');
+      throw new NotFoundException(`Không tìm thấy truyện với ID ${id}`);
     }
 
-    return story;
-  }
-
-  async getStoryChapters(id: number, query: { page: number; limit: number }) {
-    const { page = 1, limit = 20 } = query;
-    const skip = (page - 1) * limit;
-
-    const [chapters, total] = await Promise.all([
-      this.prisma.chapter.findMany({
-        where: { storyId: id },
-        select: {
-          id: true,
-          title: true,
-          number: true,
-          createdAt: true,
-          _count: { select: { comments: true } },
-        },
-        skip,
-        take: limit,
-        orderBy: { number: 'asc' },
-      }),
-      this.prisma.chapter.count({ where: { storyId: id } }),
-    ]);
+    // Tính điểm rating trung bình
+    const avgRating = story.ratings.length > 0 
+      ? story.ratings.reduce((sum, r) => sum + r.rating, 0) / story.ratings.length
+      : 0;
 
     return {
-      chapters,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      ...story,
+      averageRating: Number(avgRating.toFixed(1))
     };
   }
 
-  async createStory(createStoryDto: CreateStoryDto, authorId: number) {
+  // Lấy truyện theo slug (title converted to slug)
+  async findBySlug(slug: string) {
+    // Convert slug back to title để tìm kiếm
+    const title = slug.replace(/-/g, ' ');
+    
+    const story = await this.prisma.story.findFirst({
+      where: { 
+        title: {
+          contains: title,
+          mode: 'insensitive'
+        }
+      },
+      include: {
+        author: {
+          select: { id: true, username: true }
+        },
+        genre: true,
+        chapters: {
+          select: { 
+            id: true, 
+            title: true, 
+            number: true, 
+            createdAt: true 
+          },
+          orderBy: { number: 'asc' }
+        },
+        ratings: {
+          select: { rating: true }
+        },
+        _count: {
+          select: { 
+            chapters: true,
+            ratings: true,
+            follows: true 
+          }
+        }
+      }
+    });
+
+    if (!story) {
+      throw new NotFoundException(`Không tìm thấy truyện với slug: ${slug}`);
+    }
+
+    // Tính điểm rating trung bình
+    const avgRating = story.ratings.length > 0 
+      ? story.ratings.reduce((sum, r) => sum + r.rating, 0) / story.ratings.length
+      : 0;
+
+    return {
+      ...story,
+      averageRating: Number(avgRating.toFixed(1))
+    };
+  }
+
+  // Tạo truyện mới
+  async create(createStoryDto: CreateStoryDto, authorId: number) {
     return this.prisma.story.create({
       data: {
         ...createStoryDto,
-        authorId,
+        authorId
       },
       include: {
-        author: { select: { username: true } },
-        genre: { select: { name: true } },
-      },
+        author: {
+          select: { id: true, username: true }
+        },
+        genre: true
+      }
     });
   }
 
-  async updateStory(id: number, updateStoryDto: UpdateStoryDto, userId: number) {
+  // Cập nhật truyện
+  async update(id: number, updateStoryDto: UpdateStoryDto, authorId: number) {
+    // Kiểm tra truyện có tồn tại và người dùng có quyền sửa không
     const story = await this.prisma.story.findUnique({
-      where: { id },
-      select: { authorId: true },
+      where: { id }
     });
 
     if (!story) {
-      throw new NotFoundException('Không tìm thấy truyện');
+      throw new NotFoundException(`Không tìm thấy truyện với ID ${id}`);
     }
 
-    if (story.authorId !== userId) {
-      throw new ForbiddenException('Bạn không có quyền chỉnh sửa truyện này');
+    if (story.authorId !== authorId) {
+      throw new NotFoundException('Bạn không có quyền sửa truyện này');
     }
 
     return this.prisma.story.update({
       where: { id },
       data: updateStoryDto,
       include: {
-        author: { select: { username: true } },
-        genre: { select: { name: true } },
-      },
+        author: {
+          select: { id: true, username: true }
+        },
+        genre: true
+      }
     });
   }
 
-  async deleteStory(id: number, userId: number) {
+  // Xóa truyện
+  async remove(id: number, authorId: number) {
     const story = await this.prisma.story.findUnique({
-      where: { id },
-      select: { authorId: true },
+      where: { id }
     });
 
     if (!story) {
-      throw new NotFoundException('Không tìm thấy truyện');
+      throw new NotFoundException(`Không tìm thấy truyện với ID ${id}`);
     }
 
-    if (story.authorId !== userId) {
-      throw new ForbiddenException('Bạn không có quyền xóa truyện này');
+    if (story.authorId !== authorId) {
+      throw new NotFoundException('Bạn không có quyền xóa truyện này');
     }
 
-    await this.prisma.story.delete({ where: { id } });
-    return { message: 'Đã xóa truyện thành công' };
+    return this.prisma.story.delete({
+      where: { id }
+    });
   }
 
-  async followStory(id: number, userId: number) {
-    await this.prisma.follow.upsert({
-      where: { userId_storyId: { userId, storyId: id } },
-      update: {},
-      create: { userId, storyId: id },
-    });
+  // Tìm kiếm truyện
+  async search(query: string, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    
+    const [stories, total] = await Promise.all([
+      this.prisma.story.findMany({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: query,
+                mode: 'insensitive'
+              }
+            },
+            {
+              description: {
+                contains: query,
+                mode: 'insensitive'
+              }
+            },
+            {
+              author: {
+                username: {
+                  contains: query,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          ]
+        },
+        skip,
+        take: limit,
+        include: {
+          author: {
+            select: { id: true, username: true }
+          },
+          genre: true,
+          _count: {
+            select: { 
+              chapters: true,
+              ratings: true,
+              follows: true 
+            }
+          }
+        },
+        orderBy: { updatedAt: 'desc' }
+      }),
+      this.prisma.story.count({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: query,
+                mode: 'insensitive'
+              }
+            },
+            {
+              description: {
+                contains: query,
+                mode: 'insensitive'
+              }
+            }
+          ]
+        }
+      })
+    ]);
 
-    return { message: 'Đã theo dõi truyện thành công' };
+    return {
+      data: stories,
+      meta: {
+        current_page: page,
+        per_page: limit,
+        total,
+        total_pages: Math.ceil(total / limit),
+        query
+      }
+    };
   }
 
-  async unfollowStory(id: number, userId: number) {
-    await this.prisma.follow.delete({
-      where: { userId_storyId: { userId, storyId: id } },
-    });
+  // Lấy truyện theo thể loại
+  async findByGenre(genreId: number, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    
+    const [stories, total] = await Promise.all([
+      this.prisma.story.findMany({
+        where: { genreId },
+        skip,
+        take: limit,
+        include: {
+          author: {
+            select: { id: true, username: true }
+          },
+          genre: true,
+          _count: {
+            select: { 
+              chapters: true,
+              ratings: true,
+              follows: true 
+            }
+          }
+        },
+        orderBy: { updatedAt: 'desc' }
+      }),
+      this.prisma.story.count({
+        where: { genreId }
+      })
+    ]);
 
-    return { message: 'Đã bỏ theo dõi truyện thành công' };
-  }
-
-  async rateStory(id: number, ratingData: { rating: number; comment?: string }, userId: number) {
-    const { rating, comment } = ratingData;
-
-    if (rating < 1 || rating > 5) {
-      throw new Error('Điểm đánh giá phải từ 1-5');
-    }
-
-    await this.prisma.rating.upsert({
-      where: { storyId_userId: { storyId: id, userId } },
-      update: { rating, comment },
-      create: { storyId: id, userId, rating, comment },
-    });
-
-    return { message: 'Đã đánh giá truyện thành công' };
+    return {
+      data: stories,
+      meta: {
+        current_page: page,
+        per_page: limit,
+        total,
+        total_pages: Math.ceil(total / limit)
+      }
+    };
   }
 }

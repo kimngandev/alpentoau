@@ -1,68 +1,87 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum, IsUrl } from 'class-validator';
+// backend/src/stories/dto/story.dto.ts
+import { 
+  IsString, 
+  IsNotEmpty, 
+  IsOptional, 
+  IsEnum, 
+  IsInt, 
+  IsUrl,
+  MaxLength,
+  MinLength 
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { StoryStatus } from '@prisma/client';
 
 export class CreateStoryDto {
   @IsString()
   @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(200)
   title: string;
 
   @IsString()
   @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(2000)
   description: string;
 
   @IsOptional()
   @IsUrl()
   coverImage?: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  genreId: number;
-
-  @IsOptional()
   @IsEnum(StoryStatus)
-  status?: StoryStatus;
+  @IsOptional()
+  status?: StoryStatus = StoryStatus.ONGOING;
+
+  @IsInt()
+  @Type(() => Number)
+  genreId: number;
 }
 
 export class UpdateStoryDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
+  @MinLength(3)
+  @MaxLength(200)
   title?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
+  @MinLength(10)
+  @MaxLength(2000)
   description?: string;
 
   @IsOptional()
   @IsUrl()
   coverImage?: string;
 
-  @IsOptional()
-  @IsNumber()
-  genreId?: number;
-
-  @IsOptional()
   @IsEnum(StoryStatus)
+  @IsOptional()
   status?: StoryStatus;
+
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  genreId?: number;
 }
 
-export class StoryQueryDto {
+export class QueryStoryDto {
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   page?: number = 1;
 
   @IsOptional()
-  @IsNumber()
-  limit?: number = 10;
-
-  @IsOptional()
-  @IsString()
-  genre?: string;
+  @Type(() => Number)
+  @IsInt()
+  limit?: number = 20;
 
   @IsOptional()
   @IsString()
   search?: string;
 
   @IsOptional()
-  @IsString()
-  status?: string;
+  @Type(() => Number)
+  @IsInt()
+  genreId?: number;
 }

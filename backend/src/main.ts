@@ -1,35 +1,18 @@
+// backend/src/main.ts
+
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // CORS cho frontend
-  app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true,
-  });
 
-  // Validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  // BỔ SUNG: Cho phép frontend (từ mọi nguồn) có thể gọi API
+  app.enableCors();
 
-  // Global prefix
+  // BỔ SUNG: Thêm tiền tố '/api' cho tất cả các route
+  // Ví dụ: /genres -> /api/genres
   app.setGlobalPrefix('api');
 
-  const port = process.env.PORT ?? 3001;
-  await app.listen(port);
-  console.log(`🚀 Server đang chạy trên port ${port}`);
-  console.log(`📚 Website truyện API: http://localhost:${port}/api`);
+  await app.listen(3001);
 }
-
-bootstrap().catch((error) => {
-  console.error('❌ Lỗi khởi động server:', error);
-  process.exit(1);
-});
+bootstrap();
