@@ -2,6 +2,7 @@
 
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
+import App from 'next/app'
 import { ThemeProvider } from 'next-themes'
 import { appWithTranslation } from 'next-i18next'
 import Header from '../components/Header'
@@ -27,3 +28,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default appWithTranslation(MyApp)
+
+MyApp.getInitialProps = async (appContext: any) => {
+  const appProps = await App.getInitialProps(appContext)
+  const locale = appContext.ctx?.locale ?? 'vi'
+  const i18nProps = await serverSideTranslations(locale, ['common'])
+  return { ...appProps, pageProps: { ...appProps.pageProps, ...i18nProps } }
+}

@@ -5,6 +5,8 @@ import CategoryFilterBar, { type FilterState as BarFilterState } from "../../com
 import Pagination from "../../components/Pagination";
 import raw from "../../data/categories.json";
 import { fetchAPI } from '../../lib/api'; 
+import type { GetStaticProps } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 
 const ALL: Category[] = raw as unknown as Category[];
@@ -157,3 +159,12 @@ export default function CategoriesPage() {
     </main>
   );
 }
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'vi', ['common']))
+    },
+    revalidate: 600,
+  };
+};

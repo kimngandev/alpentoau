@@ -24,6 +24,9 @@ model User {
   email     String    @unique
   password  String
   role      UserRole  @default(USER)
+  isVerified Boolean  @default(false)
+  verificationToken String? @unique
+  verificationTokenExpires DateTime?
   stories   Story[]   @relation("AuthorStories")
   ratings   Rating[]
   comments  Comment[]

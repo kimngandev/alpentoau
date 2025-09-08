@@ -11,6 +11,16 @@
   "loading": "Đang tải...",
   "views": "lượt xem",
   "readFromStart": "Đọc từ đầu" ,
+  "filter": {
+    "latest": "Mới cập nhật",
+    "most_viewed": "Xem nhiều",
+    "highest_rated": "Đánh giá cao",
+    "all_status": "Tất cả",
+    "ongoing": "Đang tiến hành",
+    "completed": "Hoàn thành",
+    "sort_by": "Sắp xếp",
+    "status": "Trạng thái"
+  },
   
   "hero": {
     "title": "Nơi Câu Chuyện Bắt Đầu",

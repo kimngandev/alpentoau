@@ -9,6 +9,17 @@
     "toggleTheme": "Toggle theme"
   },
 
+  "filter": {
+    "latest": "Latest",
+    "most_viewed": "Most viewed",
+    "highest_rated": "Highest rated",
+    "all_status": "All",
+    "ongoing": "Ongoing",
+    "completed": "Completed",
+    "sort_by": "Sort by",
+    "status": "Status"
+  },
+
   "hero": {
     "title": "Where Story Begins",
     "subtitle": "Embark on a creative journey and discover countless unique works. Your imagination is the only limit.",
