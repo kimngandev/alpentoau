@@ -71,7 +71,8 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className="font-medium text-gray-400 hover:underline">Quên mật khẩu?</Link>
             </div>
 
-            <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-transform hover:scale-105">
+            <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-purple-400 text-white font-semibold hover:bg-purple-500
+             transition-transform hover:scale-105">
               <FiLogIn /> Đăng nhập
             </button>
           </form>
