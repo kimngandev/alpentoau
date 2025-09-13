@@ -1,193 +1,75 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AdType, AdPosition } from '@prisma/client';
+import { AdPosition, AdType } from '@prisma/client';
+import { CreateAdDto, UpdateAdDto, AdTriggerContextDto } from './dto';
 
 @Injectable()
 export class AdsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async createAd(data: {
-    title: string;
-    type: AdType;
-    position: AdPosition;
-    content: string;
-    imageUrl?: string;
-    linkUrl?: string;
-    triggerRule?: string;
-  }) {
+  createAd(data: CreateAdDto) {
     return this.prisma.ad.create({
-      data,
+      data: {
+        ...data,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+      },
     });
   }
 
-  async getAllAds(page = 1, limit = 20) {
-    const skip = (page - 1) * limit;
-
-    const [ads, total] = await Promise.all([
-      this.prisma.ad.findMany({
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.ad.count(),
-    ]);
-
-    return {
-      ads,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+  findAll() {
+    return this.prisma.ad.findMany();
   }
 
-  async getActiveAds(type?: AdType, position?: AdPosition) {
-    const where: any = { isActive: true };
-    
-    if (type) where.type = type;
-    if (position) where.position = position;
+  findOne(id: number) {
+    return this.prisma.ad.findUnique({ where: { id } });
+  }
 
+  updateAd(id: number, data: UpdateAdDto) {
+    return this.prisma.ad.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(data.startDate && { startDate: new Date(data.startDate) }),
+        ...(data.endDate && { endDate: new Date(data.endDate) }),
+      },
+    });
+  }
+
+  deleteAd(id: number) {
+    return this.prisma.ad.delete({ where: { id } });
+  }
+
+  getActiveAds(type?: AdType, position?: AdPosition) {
     return this.prisma.ad.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async getAdById(id: number) {
-    const ad = await this.prisma.ad.findUnique({
-      where: { id },
-    });
-
-    if (!ad) {
-      throw new NotFoundException('Ad not found');
-    }
-
-    return ad;
-  }
-
-  async updateAd(id: number, data: {
-    title?: string;
-    type?: AdType;
-    position?: AdPosition;
-    content?: string;
-    imageUrl?: string;
-    linkUrl?: string;
-    triggerRule?: string;
-    isActive?: boolean;
-  }) {
-    const ad = await this.prisma.ad.findUnique({
-      where: { id },
-    });
-
-    if (!ad) {
-      throw new NotFoundException('Ad not found');
-    }
-
-    return this.prisma.ad.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async deleteAd(id: number) {
-    const ad = await this.prisma.ad.findUnique({
-      where: { id },
-    });
-
-    if (!ad) {
-      throw new NotFoundException('Ad not found');
-    }
-
-    return this.prisma.ad.delete({
-      where: { id },
-    });
-  }
-
-  async trackAdImpression(id: number) {
-    return this.prisma.ad.update({
-      where: { id },
-      data: {
-        impressionCount: {
-          increment: 1,
-        },
-      },
-    });
-  }
-
-  async trackAdClick(id: number) {
-    return this.prisma.ad.update({
-      where: { id },
-      data: {
-        clickCount: {
-          increment: 1,
-        },
-      },
-    });
-  }
-
-  async getAdStatistics(id: number) {
-    const ad = await this.prisma.ad.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        type: true,
-        position: true,
-        clickCount: true,
-        impressionCount: true,
-        createdAt: true,
-      },
-    });
-
-    if (!ad) {
-      throw new NotFoundException('Ad not found');
-    }
-
-    const ctr = ad.impressionCount > 0 ? (ad.clickCount / ad.impressionCount) * 100 : 0;
-
-    return {
-      ...ad,
-      clickThroughRate: parseFloat(ctr.toFixed(2)),
-    };
-  }
-
-  // Get ads based on trigger rules (for popup ads after X chapters)
-  async getTriggeredAds(context: {
-    userId?: number;
-    chaptersRead?: number;
-    currentStoryId?: number;
-  }) {
-    const activeAds = await this.prisma.ad.findMany({
-      where: { 
+      where: {
         isActive: true,
-        type: 'POPUP'
+        type,
+        position,
       },
     });
+  }
 
-    // Filter ads based on trigger rules
-    const triggeredAds = activeAds.filter(ad => {
-      if (!ad.triggerRule) return true;
-
-      try {
-        const rule = JSON.parse(ad.triggerRule);
-        
-        // Example rule: { "chaptersRead": 2, "frequency": "every" }
-        if (rule.chaptersRead && context.chaptersRead) {
-          if (rule.frequency === 'every') {
-            return context.chaptersRead % rule.chaptersRead === 0;
-          } else if (rule.frequency === 'after') {
-            return context.chaptersRead >= rule.chaptersRead;
-          }
-        }
-
-        return true;
-      } catch {
-        return true; // If rule parsing fails, show the ad
-      }
+  trackAdImpression(id: number) {
+    return this.prisma.ad.update({
+      where: { id },
+      data: { impressions: { increment: 1 } },
     });
+  }
 
-    return triggeredAds;
+  trackAdClick(id: number) {
+    return this.prisma.ad.update({
+      where: { id },
+      data: { clicks: { increment: 1 } },
+    });
+  }
+
+  getTriggeredAds(context: AdTriggerContextDto) {
+    // Basic implementation, can be expanded with more complex rules
+    if (context.position) {
+        return this.getActiveAds(undefined, context.position);
+    }
+    return [];
   }
 }
+

@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Request,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,56 +21,43 @@ export class CommentsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createComment(@Request() req, @Body() createCommentDto: CreateCommentDto) {
+  createComment(@Request() req, @Body() createCommentDto: CreateCommentDto) {
     const { storyId, chapterId, content, parentId } = createCommentDto;
     return this.commentsService.createComment(
-      req.user.id,
+      req.user.userId,
+      content,
       storyId,
       chapterId,
-      content,
       parentId,
     );
   }
 
   @Get('story/:storyId')
-  async getStoryComments(
-    @Param('storyId') storyId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+  getStoryComments(
+    @Param('storyId', ParseIntPipe) storyId: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
-    return this.commentsService.getCommentsByStory(
-      +storyId,
-      page ? +page : 1,
-      limit ? +limit : 20,
-    );
-  }
-
-  @Get('chapter/:chapterId')
-  async getChapterComments(
-    @Param('chapterId') chapterId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
-    return this.commentsService.getCommentsByChapter(
-      +chapterId,
-      page ? +page : 1,
-      limit ? +limit : 20,
-    );
+    return this.commentsService.getCommentsForStory(storyId, page, limit);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async updateComment(
-    @Param('id') id: string,
+  updateComment(
     @Request() req,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    return this.commentsService.updateComment(+id, req.user.id, updateCommentDto.content);
+    return this.commentsService.updateComment(
+      req.user.userId,
+      id,
+      updateCommentDto.content,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteComment(@Param('id') id: string, @Request() req) {
-    return this.commentsService.deleteComment(+id, req.user.id);
+  deleteComment(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.commentsService.deleteComment(req.user.userId, id);
   }
 }

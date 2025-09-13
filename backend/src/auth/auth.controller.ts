@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
+// It's better to use DTOs for validation
 class RegisterDto { username!: string; email!: string; password!: string; }
 class LoginDto { email!: string; password!: string; }
 
@@ -23,5 +24,3 @@ export class AuthController {
     return this.auth.login(dto.email, dto.password);
   }
 }
-
-

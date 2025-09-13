@@ -15,7 +15,7 @@ import { MailerService } from './mailer.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
-        secret: cfg.get<string>('JWT_SECRET') || 'dev-secret',
+        secret: cfg.get<string>('JWT_SECRET') || 'dev-secret-key-that-is-long-enough',
         signOptions: { expiresIn: '7d' },
       }),
     }),
@@ -25,5 +25,3 @@ import { MailerService } from './mailer.service';
   exports: [AuthService],
 })
 export class AuthModule {}
-
-

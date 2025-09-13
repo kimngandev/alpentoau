@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,87 +11,180 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
   password  String
-  role      UserRole  @default(USER)
-  createdAt DateTime  @default(now())
-  comments  Comment[]
-  Follow    Follow[]
-  ratings   Rating[]
-  stories   Story[]   @relation("AuthorStories")
-}
+  role      UserRole @default(USER)
+  avatar    String?
+  createdAt DateTime @default(now())
 
-model Genre {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  Story Story[]
+  // Fields for email verification
+  isVerified               Boolean?  @default(false)
+  verificationToken        String?   @unique
+  verificationTokenExpires DateTime?
+
+  // Relations
+  stories      Story[]
+  comments     Comment[]
+  bookmarks    Bookmark[]
+  ratings      Rating[]
+  readProgress ReadProgress[]
+  views        View[]
+  follows      Follow[]
 }
 
 model Story {
   id          Int         @id @default(autoincrement())
-  title       String      @unique
+  title       String
+  slug        String      @unique
   description String
   coverImage  String?
   status      StoryStatus @default(ONGOING)
-  authorId    Int
-  genreId     Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  chapters    Chapter[]
-  Follow      Follow[]
-  ratings     Rating[]
-  author      User        @relation("AuthorStories", fields: [authorId], references: [id])
-  Genre       Genre       @relation(fields: [genreId], references: [id])
+  author      User        @relation(fields: [authorId], references: [id])
+  authorId    Int
+
+  // Relations
+  genres       StoryGenre[]
+  chapters     Chapter[]
+  comments     Comment[]
+  bookmarks    Bookmark[]
+  ratings      Rating[]
+  readProgress ReadProgress[]
+  views        View[]
+  follows      Follow[]
+}
+
+model Genre {
+  id      Int          @id @default(autoincrement())
+  name    String       @unique
+  slug    String       @unique
+  stories StoryGenre[]
+}
+
+// Explicit many-to-many relation table for Story and Genre
+model StoryGenre {
+  story    Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId  Int
+  genre    Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId  Int
+
+  @@id([storyId, genreId])
 }
 
 model Chapter {
   id        Int       @id @default(autoincrement())
-  storyId   Int
   title     String
-  number    Int
+  slug      String
   content   String
+  number    Int
   createdAt DateTime  @default(now())
-  story     Story     @relation(fields: [storyId], references: [id])
-  comments  Comment[]
+  story     Story     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   Int
+
+  // Relations
+  comments     Comment[]
+  readProgress ReadProgress[]
+  views        View[]
 
   @@unique([storyId, number])
-}
-
-model Rating {
-  id        Int      @id @default(autoincrement())
-  storyId   Int
-  userId    Int
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  story     Story    @relation(fields: [storyId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@unique([storyId, userId])
+  @@unique([storyId, slug])
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
-  chapterId Int
-  userId    Int
   content   String
   createdAt DateTime @default(now())
-  chapter   Chapter  @relation(fields: [chapterId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  // A comment can belong to a story OR a chapter
+  story     Story?    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   Int?
+  chapter   Chapter?  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId Int?
+
+  // Self-relation for replies
+  parent    Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId  Int?
+  replies   Comment[] @relation("Replies")
+}
+
+model Bookmark {
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  story   Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId Int
+
+  @@id([userId, storyId])
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   Int
+
+  @@unique([userId, storyId])
 }
 
 model Follow {
-  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
   storyId   Int
   createdAt DateTime @default(now())
-  Story     Story    @relation(fields: [storyId], references: [id])
-  User      User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, storyId])
+}
+
+model ReadProgress {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   Int
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId Int
+  progress  Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, storyId])
+}
+
+model View {
+  id        Int      @id @default(autoincrement())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    Int?
+  story     Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   Int?
+  chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId Int?
+  createdAt DateTime @default(now())
+}
+
+model Ad {
+  id          Int        @id @default(autoincrement())
+  title       String
+  content     String
+  imageUrl    String?
+  linkUrl     String
+  type        AdType
+  position    AdPosition
+  isActive    Boolean    @default(true)
+  startDate   DateTime
+  endDate     DateTime
+  impressions Int        @default(0)
+  clicks      Int        @default(0)
+  createdAt   DateTime   @default(now())
 }
 
 enum UserRole {
@@ -100,4 +196,21 @@ enum UserRole {
 enum StoryStatus {
   ONGOING
   COMPLETED
+  DROPPED
 }
+
+enum AdType {
+  IMAGE
+  TEXT
+  VIDEO
+}
+
+enum AdPosition {
+  HEADER
+  FOOTER
+  SIDEBAR_TOP
+  SIDEBAR_BOTTOM
+  IN_CONTENT
+  POPUP
+}
+

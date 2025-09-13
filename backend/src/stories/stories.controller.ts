@@ -13,87 +13,43 @@ import {
   Request
 } from '@nestjs/common';
 import { StoriesService } from './stories.service';
-import { CreateStoryDto, UpdateStoryDto, QueryStoryDto } from './dto/story.dto';
+import { CreateStoryDto, UpdateStoryDto } from './dto/story.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('stories')
 export class StoriesController {
   constructor(private readonly storiesService: StoriesService) {}
 
-  // GET /api/stories - Lấy danh sách truyện với phân trang
   @Get()
-  async findAll(@Query() query: QueryStoryDto) {
-    const { page, limit, search, genreId } = query;
-
-    // Nếu có search query
-    if (search) {
-      return this.storiesService.search(search, page, limit);
-    }
-
-    // Nếu có genreId
-    if (genreId) {
-      return this.storiesService.findByGenre(genreId, page, limit);
-    }
-
-    // Mặc định lấy tất cả
+  async findAll(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20
+  ) {
     return this.storiesService.findAll(page, limit);
   }
 
-  // GET /api/stories/search?q=keyword - Tìm kiếm truyện
-  @Get('search')
-  async search(
-    @Query('q') query: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20
-  ) {
-    return this.storiesService.search(query, page, limit);
-  }
-
-  // GET /api/stories/:id - Lấy truyện theo ID
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.storiesService.findOne(id);
-  }
-
-  // GET /api/stories/slug/:slug - Lấy truyện theo slug
-  @Get('slug/:slug')
+  @Get(':slug')
   async findBySlug(@Param('slug') slug: string) {
     return this.storiesService.findBySlug(slug);
   }
 
-  // POST /api/stories - Tạo truyện mới (cần đăng nhập)
+  @UseGuards(JwtAuthGuard)
   @Post()
-  // @UseGuards(JwtAuthGuard) // TODO: Implement sau khi có auth
-  async create(
-    @Body() createStoryDto: CreateStoryDto,
-    // @Request() req // TODO: Lấy user từ JWT
-  ) {
-    // TODO: Thay 1 bằng req.user.id khi có auth
-    const authorId = 1; // Hardcode tạm thời để test
+  async create(@Request() req, @Body() createStoryDto: CreateStoryDto) {
+    const authorId = req.user.userId;
     return this.storiesService.create(createStoryDto, authorId);
   }
 
-  // PATCH /api/stories/:id - Cập nhật truyện (cần đăng nhập)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  // @UseGuards(JwtAuthGuard) // TODO: Implement sau khi có auth
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Request() req,
     @Body() updateStoryDto: UpdateStoryDto,
-    // @Request() req // TODO: Lấy user từ JWT
   ) {
-    // TODO: Thay 1 bằng req.user.id khi có auth
-    const authorId = 1; // Hardcode tạm thời để test
+    const authorId = req.user.userId;
+    // In a real app, you should add a check here to ensure req.user.userId owns the story
     return this.storiesService.update(id, updateStoryDto, authorId);
   }
-
-  // DELETE /api/stories/:id - Xóa truyện (cần đăng nhập)
-  @Delete(':id')
-  // @UseGuards(JwtAuthGuard) // TODO: Implement sau khi có auth
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    // @Request() req // TODO: Lấy user từ JWT
-  ) {
-    // TODO: Thay 1 bằng req.user.id khi có auth
-    const authorId = 1; // Hardcode tạm thời để test
-    return this.storiesService.remove(id, authorId);
-  }
 }
+
