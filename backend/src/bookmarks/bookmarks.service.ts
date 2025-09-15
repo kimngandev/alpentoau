@@ -41,7 +41,8 @@ export class BookmarksService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' }, // This will now work
+       
+        
       }),
       this.prisma.bookmark.count({ where: { userId } }),
     ]);
@@ -53,4 +54,3 @@ export class BookmarksService {
     };
   }
 }
-

@@ -1,4 +1,3 @@
-// backend/src/stories/stories.controller.ts
 import { 
   Controller, 
   Get, 
@@ -48,7 +47,6 @@ export class StoriesController {
     @Body() updateStoryDto: UpdateStoryDto,
   ) {
     const authorId = req.user.userId;
-    // In a real app, you should add a check here to ensure req.user.userId owns the story
     return this.storiesService.update(id, updateStoryDto, authorId);
   }
 }

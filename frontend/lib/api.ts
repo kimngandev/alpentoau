@@ -1,11 +1,9 @@
-// frontend/lib/api.ts
 
-// URL của backend server. Sử dụng biến môi trường để linh hoạt.
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 /**
  * Hàm chung để gọi API từ backend
- * @param endpoint Đường dẫn API, ví dụ: '/genres'
+ * @param endpoint 
  * @returns Dữ liệu JSON từ API hoặc null nếu có lỗi
  */
 export async function fetchAPI(endpoint: string) {

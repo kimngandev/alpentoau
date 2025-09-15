@@ -11,7 +11,7 @@ export class AdsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post()
   create(@Body() createAdDto: CreateAdDto) {
-    return this.adsService.create(createAdDto);
+    return this.adsService.createAd(createAdDto); // Sửa từ create -> createAd
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -22,7 +22,7 @@ export class AdsController {
   
   @Get('trigger')
   findForTrigger(@Query() context: AdTriggerContextDto) {
-    return this.adsService.findForTrigger(context);
+    return this.adsService.getTriggeredAds(context); // Sửa từ findForTrigger -> getTriggeredAds
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -34,13 +34,12 @@ export class AdsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdDto: UpdateAdDto) {
-    return this.adsService.update(+id, updateAdDto);
+    return this.adsService.updateAd(+id, updateAdDto); // Sửa từ update -> updateAd
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.adsService.remove(+id);
+    return this.adsService.deleteAd(+id); 
   }
 }
-

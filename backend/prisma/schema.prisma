@@ -117,6 +117,7 @@ model Bookmark {
   userId  Int
   story   Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
   storyId Int
+  createdAt DateTime @default(now())
 
   @@id([userId, storyId])
 }
