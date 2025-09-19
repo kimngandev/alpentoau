@@ -1,20 +1,43 @@
-import { Injectable } from '@nestjs/common';
+// backend/src/auth/jwt.strategy.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(cfg: ConfigService) {
+  constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: cfg.get<string>('JWT_SECRET') || 'dev-secret-key-that-is-long-enough',
+      secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
     });
   }
 
-  async validate(payload: { sub: number; role: string, username: string }) {
-    // The value returned here will be attached to req.user
-    return { userId: payload.sub, role: payload.role, username: payload.username };
+  async validate(payload: any) {
+    // Kiểm tra user có tồn tại trong database không
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+        isVerified: true,
+      }
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Người dùng không tồn tại');
+    }
+
+    // Trả về thông tin user để sử dụng trong controller
+    return {
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      sub: user.id, // Để tương thích với payload
+    };
   }
 }

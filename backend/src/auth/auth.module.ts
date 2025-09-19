@@ -1,27 +1,24 @@
+// backend/src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthService } from './auth.service';
+import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { MailerService } from './mailer.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [
-    PrismaModule,
-    ConfigModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (cfg: ConfigService) => ({
-        secret: cfg.get<string>('JWT_SECRET') || 'dev-secret-key-that-is-long-enough',
-        signOptions: { expiresIn: '7d' },
-      }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'your-secret-key',
+      signOptions: { 
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d' // Token sống 7 ngày
+      },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, MailerService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, PrismaService],
+  exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}
