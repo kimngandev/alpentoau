@@ -6,7 +6,9 @@ export class BookmarksService {
   constructor(private prisma: PrismaService) {}
 
   async addBookmark(userId: number, storyId: number) {
-    const story = await this.prisma.story.findUnique({ where: { id: storyId } });
+    const story = await this.prisma.story.findUnique({
+      where: { id: storyId },
+    });
     if (!story) {
       throw new NotFoundException('Story not found');
     }
@@ -41,8 +43,6 @@ export class BookmarksService {
             },
           },
         },
-       
-        
       }),
       this.prisma.bookmark.count({ where: { userId } }),
     ]);

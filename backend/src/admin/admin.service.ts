@@ -6,19 +6,14 @@ export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   async getDashboardStats() {
-    const [
-      userCount,
-      storyCount,
-      chapterCount,
-      commentCount,
-      bookmarkCount,
-    ] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.story.count(),
-      this.prisma.chapter.count(),
-      this.prisma.comment.count(),
-      this.prisma.bookmark.count(),
-    ]);
+    const [userCount, storyCount, chapterCount, commentCount, bookmarkCount] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.story.count(),
+        this.prisma.chapter.count(),
+        this.prisma.comment.count(),
+        this.prisma.bookmark.count(),
+      ]);
 
     return {
       users: userCount,
@@ -51,14 +46,13 @@ export class AdminService {
       },
     });
 
-    return stories.map(story => ({
-        id: story.id,
-        title: story.title,
-        slug: story.slug,
-        viewCount: story._count.views,
-        bookmarkCount: story._count.bookmarks,
-        commentCount: story._count.comments,
+    return stories.map((story) => ({
+      id: story.id,
+      title: story.title,
+      slug: story.slug,
+      viewCount: story._count.views,
+      bookmarkCount: story._count.bookmarks,
+      commentCount: story._count.comments,
     }));
   }
 }
-

@@ -15,4 +15,3 @@ export class GenresController {
     return this.genresService.findOneBySlug(slug);
   }
 }
-

@@ -1,18 +1,26 @@
 // backend/src/auth/auth.controller.ts
-import { Body, Controller, Get, Post, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 // DTOs for validation
-class RegisterDto { 
-  username!: string; 
-  email!: string; 
-  password!: string; 
+class RegisterDto {
+  username!: string;
+  email!: string;
+  password!: string;
 }
 
-class LoginDto { 
-  email!: string; 
-  password!: string; 
+class LoginDto {
+  email!: string;
+  password!: string;
 }
 
 @Controller('auth')

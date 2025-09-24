@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsEnum, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 import { AdType, AdPosition } from '@prisma/client';
 
 export class CreateAdDto {
@@ -24,7 +30,7 @@ export class CreateAdDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-  
+
   @IsString()
   startDate: string; // Using string to accept ISO date format from client
 
@@ -71,20 +77,19 @@ export class UpdateAdDto {
 }
 
 export class AdTriggerContextDto {
-    @IsOptional()
-    @IsNumber()
-    userId?: number;
-  
-    @IsOptional()
-    @IsNumber()
-    chaptersRead?: number;
-  
-    @IsOptional()
-    @IsNumber()
-    currentStoryId?: number;
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
 
-    @IsOptional()
-    @IsEnum(AdPosition)
-    position?: AdPosition;
+  @IsOptional()
+  @IsNumber()
+  chaptersRead?: number;
+
+  @IsOptional()
+  @IsNumber()
+  currentStoryId?: number;
+
+  @IsOptional()
+  @IsEnum(AdPosition)
+  position?: AdPosition;
 }
-

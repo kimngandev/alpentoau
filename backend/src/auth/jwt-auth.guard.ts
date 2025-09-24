@@ -10,7 +10,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       if (info) {
         // Xử lý các loại lỗi JWT phổ biến
         if (info.name === 'TokenExpiredError') {
-          throw new UnauthorizedException('Token đã hết hạn. Vui lòng đăng nhập lại.');
+          throw new UnauthorizedException(
+            'Token đã hết hạn. Vui lòng đăng nhập lại.',
+          );
         }
         if (info.name === 'JsonWebTokenError') {
           throw new UnauthorizedException('Token không hợp lệ.');
@@ -22,10 +24,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           throw new UnauthorizedException(`Lỗi xác thực: ${info.message}`);
         }
       }
-      
+
       throw new UnauthorizedException('Vui lòng đăng nhập để tiếp tục.');
     }
-    
+
     return user;
   }
 }

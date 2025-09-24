@@ -15,7 +15,6 @@ export class AdminController {
 
   @Get('top-stories')
   async getTopStories() {
-      return this.adminService.getTopStories();
+    return this.adminService.getTopStories();
   }
 }
-

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AdsService } from './ads.service';
 import { CreateAdDto, UpdateAdDto, AdTriggerContextDto } from './dto';
 import { AdminGuard } from '../auth/admin.guard';
@@ -19,7 +29,7 @@ export class AdsController {
   findAll() {
     return this.adsService.findAll();
   }
-  
+
   @Get('trigger')
   findForTrigger(@Query() context: AdTriggerContextDto) {
     return this.adsService.getTriggeredAds(context); // Sửa từ findForTrigger -> getTriggeredAds
@@ -40,6 +50,6 @@ export class AdsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.adsService.deleteAd(+id); 
+    return this.adsService.deleteAd(+id);
   }
 }

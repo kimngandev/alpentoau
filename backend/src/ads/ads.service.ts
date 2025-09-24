@@ -67,9 +67,8 @@ export class AdsService {
   getTriggeredAds(context: AdTriggerContextDto) {
     // Basic implementation, can be expanded with more complex rules
     if (context.position) {
-        return this.getActiveAds(undefined, context.position);
+      return this.getActiveAds(undefined, context.position);
     }
     return [];
   }
 }
-

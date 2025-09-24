@@ -18,7 +18,10 @@ export class ReadProgressController {
   constructor(private readonly readProgressService: ReadProgressService) {}
 
   @Post()
-  updateReadProgress(@Request() req, @Body() updateProgressDto: UpdateReadProgressDto) {
+  updateReadProgress(
+    @Request() req,
+    @Body() updateProgressDto: UpdateReadProgressDto,
+  ) {
     const { storyId, chapterId, progress } = updateProgressDto;
     return this.readProgressService.updateReadProgress(
       req.user.userId,

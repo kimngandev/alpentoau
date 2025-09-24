@@ -20,14 +20,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const errorResponse = exception.getResponse();
-      
+
       if (typeof errorResponse === 'string') {
         message = errorResponse;
       } else if (typeof errorResponse === 'object' && errorResponse !== null) {
         // Xử lý lỗi validation từ class-validator
         const errorObj = errorResponse as any;
         if (errorObj.message) {
-          message = Array.isArray(errorObj.message) ? errorObj.message : [errorObj.message];
+          message = Array.isArray(errorObj.message)
+            ? errorObj.message
+            : [errorObj.message];
         }
       }
     }

@@ -8,12 +8,10 @@ import WaveDivider from './WaveDivider'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/router'
 
-// ✂️ Loại bỏ hoàn toàn phần translations + useEffect tay
 export default function Hero() {
   const { t } = useTranslation('common')
   const { locale } = useRouter()
-
-  // Lấy luôn content từ file JSON, ví dụ common.json  
+ 
   const title      = t('hero.title')
   const subtitle   = t('hero.subtitle')
   const buttonText = t('hero.buttonText')

@@ -1,15 +1,15 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   Query,
   ParseIntPipe,
   UseGuards,
-  Request
+  Request,
 } from '@nestjs/common';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto, UpdateStoryDto } from './dto/story.dto';
@@ -22,7 +22,7 @@ export class StoriesController {
   @Get()
   async findAll(
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     return this.storiesService.findAll(page, limit);
   }
@@ -50,4 +50,3 @@ export class StoriesController {
     return this.storiesService.update(id, updateStoryDto, authorId);
   }
 }
-

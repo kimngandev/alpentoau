@@ -7,7 +7,7 @@ export class GenresService {
 
   findAll() {
     return this.prisma.genre.findMany({
-        orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -21,24 +21,23 @@ export class GenresService {
     }
 
     const stories = await this.prisma.story.findMany({
-        where: {
-            genres: {
-                some: {
-                    genre: {
-                        slug: slug
-                    }
-                }
-            }
+      where: {
+        genres: {
+          some: {
+            genre: {
+              slug: slug,
+            },
+          },
         },
-        include: {
-            author: { select: { id: true, username: true }},
-            _count: {
-                select: { chapters: true, views: true }
-            }
-        }
+      },
+      include: {
+        author: { select: { id: true, username: true } },
+        _count: {
+          select: { chapters: true, views: true },
+        },
+      },
     });
 
     return { ...genre, stories };
   }
 }
-

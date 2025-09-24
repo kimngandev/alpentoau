@@ -1,7 +1,13 @@
 // backend/src/auth/auth.service.ts
-import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -17,11 +23,8 @@ export class AuthService {
     // Kiểm tra email đã tồn tại
     const existingUser = await this.prisma.user.findFirst({
       where: {
-        OR: [
-          { email },
-          { username }
-        ]
-      }
+        OR: [{ email }, { username }],
+      },
     });
 
     if (existingUser) {
@@ -34,7 +37,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    
+
     const user = await this.prisma.user.create({
       data: {
         username,
@@ -45,7 +48,7 @@ export class AuthService {
     });
 
     this.logger.log(`User registered: ${user.email}`);
-    
+
     return {
       message: 'Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.',
       userId: user.id,
@@ -59,7 +62,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ 
+    const user = await this.prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -69,44 +72,44 @@ export class AuthService {
         role: true,
         isVerified: true,
         avatar: true,
-      }
+      },
     });
-    
+
     if (!user) {
       throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
     }
-    
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
     }
-    
+
     if (!user.isVerified) {
       // Trong production nên bắt buộc verify email
       this.logger.warn(`Login attempt from unverified email: ${email}`);
       // throw new UnauthorizedException('Vui lòng xác nhận email trước khi đăng nhập');
     }
 
-    const payload = { 
-      sub: user.id, 
-      role: user.role, 
+    const payload = {
+      sub: user.id,
+      role: user.role,
       username: user.username,
-      email: user.email 
+      email: user.email,
     };
-    
+
     const token = await this.jwt.signAsync(payload);
-    
+
     this.logger.log(`User logged in: ${user.email}`);
-    
-    return { 
-      token, 
-      user: { 
-        id: user.id, 
-        email: user.email, 
-        username: user.username, 
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
         role: user.role,
-        avatar: user.avatar 
-      } 
+        avatar: user.avatar,
+      },
     };
   }
 
@@ -121,7 +124,7 @@ export class AuthService {
         avatar: true,
         createdAt: true,
         isVerified: true,
-      }
+      },
     });
 
     if (!user) {
@@ -139,22 +142,22 @@ export class AuthService {
         email: true,
         username: true,
         role: true,
-      }
+      },
     });
 
     if (!user) {
       throw new UnauthorizedException('Token không hợp lệ');
     }
 
-    const payload = { 
-      sub: user.id, 
-      role: user.role, 
+    const payload = {
+      sub: user.id,
+      role: user.role,
       username: user.username,
-      email: user.email 
+      email: user.email,
     };
-    
+
     const token = await this.jwt.signAsync(payload);
-    
+
     return { token };
   }
 }

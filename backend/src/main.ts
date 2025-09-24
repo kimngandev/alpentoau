@@ -17,28 +17,30 @@ async function bootstrap() {
   });
 
   // Use ValidationPipe to automatically validate incoming data
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  
+
   const server = app.getHttpServer();
   const router = server._events.request._router;
 
   console.log(`🚀 Application is running on: ${await app.getUrl()}`);
   console.log(`🔗 API Base URL: ${await app.getUrl()}/api`);
-  
+
   // Debug: In ra tất cả routes
   console.log('\n📋 Available routes:');
   console.log('✅ GET /api - Root endpoint');
   console.log('❓ POST /api/auth/register - Register endpoint');
   console.log('❓ POST /api/auth/login - Login endpoint');
   console.log('❓ GET /api/stories - Stories endpoint');
-  
+
   // Test nhanh auth controller
   try {
     const response = await fetch(`${await app.getUrl()}/api/auth/register`, {
