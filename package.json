@@ -1,25 +1,19 @@
 {
   "name": "alpew-db",
-  "private": true,
   "version": "1.0.0",
-  "workspaces": [
-    "admin",
-    "backend",
-    "frontend",
-    "mobile",
-    "libs",
-    "types",
-    "scripts"
-  ],
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11",
-    "turbo": "^1.11.3"
-  },
+  "private": true,
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint"
-  }
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "turbo": "latest"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.1.1" 
 }
