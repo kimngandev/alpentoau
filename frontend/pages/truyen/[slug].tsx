@@ -10,7 +10,6 @@ import { motion } from 'framer-motion';
 // Bổ sung các icon cần thiết từ remixicon
 import { RiBookmarkLine, RiMessage3Line, RiSendPlane2Line } from 'react-icons/ri';
 
-import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import TruyenCard from '../../components/TruyenCard';
 import stories from '../../data/stories.json';
@@ -96,7 +95,7 @@ export default function StoryDetail({ story, storyChapters, relatedStories, rela
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
       `}</style>
       <div className="min-h-screen bg-gray-50 dark:bg-[#0b0418] text-gray-600 dark:text-gray-300">
-        <Header />
+
         <main>
           <div className="relative pt-24 overflow-hidden">
           

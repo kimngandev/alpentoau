@@ -1,59 +1,56 @@
-import Link from "next/link";
-import type { Category } from "../types/category";
+import Link from 'next/link';
+import type { Category } from '../types/category';
+
+// Helper to create a URL-friendly slug from a name
+const toSlug = (name: string) => {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '');
+};
 
 type Props = {
   category: Category;
   parentName?: string;
 };
 
-export default function CategoryCard({ category, parentName }: Props) {
-  const { name, slug, description, icon, color, isActive, itemsCount } = category;
-
+export default function CategoryCard({ category }: Props) {
   return (
-    <article
-      className="relative rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm hover:shadow-lg transition"
-      style={{ borderLeftWidth: 6, borderLeftColor: color || "#e5e7eb" }}
-      aria-labelledby={`cat-${slug}`}
-    >
-      <header className="flex items-center gap-3">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-full text-white text-xl"
-          style={{ background: color || "#3b82f6" }}
-          aria-hidden="true"
-        >
-          <span>{icon ?? "🏷️"}</span>
-        </div>
+    <Link href={`/the-loai/${toSlug(category.name)}`} legacyBehavior>
+      {/* Cải thiện responsive và shadow cho cả 2 theme */}
+      <a className="group relative block h-40 sm:h-48 overflow-hidden rounded-lg shadow-md dark:shadow-black/40 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
+        
+        {/* Background Image Placeholder - giữ nguyên hiệu ứng phóng to khi hover */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-in-out group-hover:scale-110"
+          style={{ backgroundImage: `url(https://source.unsplash.com/random/500x400?fantasy,${category.name})` }}
+        ></div>
 
-        <div className="min-w-0">
-          <h3 id={`cat-${slug}`} className="truncate font-semibold">
-            {name}
+        {/* Gradient Overlay - Lớp phủ gradient đen đảm bảo text luôn dễ đọc trên mọi ảnh nền, bất kể theme sáng hay tối */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+
+        {/* Content - Cải thiện kích thước chữ và thêm hiệu ứng đổ bóng cho text để nổi bật hơn */}
+        <div className="relative flex h-full flex-col justify-end p-4 text-white">
+          <h3 
+            className="text-lg sm:text-xl font-bold tracking-tight transition-colors duration-300 group-hover:text-cyan-300"
+            // Thêm text-shadow để chữ dễ đọc hơn trên nền ảnh phức tạp
+            style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}
+          >
+            {category.name}
           </h3>
-          {parentName && (
-            <p className="text-xs text-slate-500 dark:text-slate-400">{parentName}</p>
-          )}
+          <p 
+            className="text-sm text-gray-200"
+            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}
+          >
+            {category.itemsCount} truyện
+          </p>
         </div>
 
-        <span
-          className={`ml-auto inline-block h-2.5 w-2.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-rose-500"}`}
-          title={isActive ? "Đang hoạt động" : "Tạm ngưng"}
-        />
-      </header>
-
-      {description && (
-        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
-          {description}
-        </p>
-      )}
-
-      <footer className="mt-4 flex items-center justify-between">
-        <span className="text-sm font-medium">{itemsCount.toLocaleString()} items</span>
-        <Link
-          href={`/the-loai/${slug}`}
-          className="text-sm underline underline-offset-4 hover:no-underline"
-        >
-          Xem
-        </Link>
-      </footer>
-    </article>
+        {/* Bottom border hover effect - Giữ nguyên hiệu ứng */}
+        <div className="absolute bottom-0 left-0 h-1 w-0 bg-cyan-400 transition-all duration-500 group-hover:w-full"></div>
+      </a>
+    </Link>
   );
 }
+

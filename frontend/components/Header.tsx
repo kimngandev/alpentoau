@@ -52,7 +52,7 @@ const LanguageSwitcher = () => {
     };
 
     return (
-        <Menu as="div" className="relative">
+        <Menu as="div" className="relative z-100">
             <Menu.Button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                 <RiTranslate2 size={18} />
                 <span className="hidden sm:inline">{locale?.toUpperCase()}</span>

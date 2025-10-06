@@ -10,18 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
-
-// DTOs for validation
-class RegisterDto {
-  username!: string;
-  email!: string;
-  password!: string;
-}
-
-class LoginDto {
-  email!: string;
-  password!: string;
-}
+import { RegisterDto, LoginDto, VerifyEmailDto } from './dto'; // Import từ dto/index.ts
 
 @Controller('auth')
 export class AuthController {
@@ -42,14 +31,12 @@ export class AuthController {
     return this.auth.login(dto.email, dto.password);
   }
 
-  // Thêm endpoint để lấy thông tin profile user
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Request() req) {
     return this.auth.getProfile(req.user.sub);
   }
 
-  // Endpoint để refresh token (tùy chọn)
   @UseGuards(JwtAuthGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {

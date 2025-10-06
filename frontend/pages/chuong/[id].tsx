@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import Header from '../../components/Header'
 import { FiChevronLeft, FiChevronRight, FiHome } from 'react-icons/fi'
 
 // --- Định nghĩa kiểu dữ liệu ---
@@ -158,7 +157,7 @@ export default function ChapterPage() {
     // *** SỬA LỖI BỐ CỤC TẠI ĐÂY ***
     // Thêm `flex flex-col` để đảm bảo layout co giãn theo chiều dọc
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex flex-col">
-      <Header />
+
       {/* Thêm `flex-grow` để nội dung chính chiếm hết không gian thừa, đẩy footer xuống dưới */}
       <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
         {chapter ? (

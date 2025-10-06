@@ -1,0 +1,1 @@
+{"name":"libs","version":"1.0.0","private":true,"scripts":{"dev":"echo libs-ready","build":"echo libs-build"}}
